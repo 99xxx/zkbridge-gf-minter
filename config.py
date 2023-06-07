@@ -1,7 +1,7 @@
 '''
 
 
-в proxyy прокси с новой строки в формате - http://login:pass@ip:port'
+в proxyy прокси с новой строки в формате - http://login:pass@ip:port
 
 в keys приватники с новой строки
 

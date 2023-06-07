@@ -315,8 +315,8 @@ class ZkBridge(Help):
         nft_id = self.balance_and_get_id()
         session,hash = self.getProofGenTime()
         json_data = {
-            'from': '0x45f50500874d2f900d18c0a998bbf6edc6321d77',
-            'to': '0x45f50500874d2f900d18c0a998bbf6edc6321d77',
+            'from': self.address,
+            'to': self.address,
             'sourceChainId': id[self.chain] ,
             'targetChainId':id[self.to] ,
             'txHash': hash,
