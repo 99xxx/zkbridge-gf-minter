@@ -12,6 +12,8 @@
 
 * Прокси пишем в proxyy.txt - один прокси на одной строке в формате http://login:pass@ip:port</br>
 
+* Также нужно создать api ключ moralis - https://admin.moralis.io/login </br>
+
 * Также не забудьте установить зависимости 
 
 <pre><code>$ pip install -r requirements.txt</code></pre>
