@@ -379,7 +379,7 @@ class ZkBridge(Help):
                     proxies = {'http': self.proxy, 'https': self.proxy}
                     response = session.post('https://api.zkbridge.com/api/bridge/claimOrder', json=json_data,proxies=proxies)
                 else:
-                    response = session.post('hhttps://api.zkbridge.com/api/bridge/claimOrder', json=json_data)
+                    response = session.post('https://api.zkbridge.com/api/bridge/claimOrder', json=json_data)
                 if response.status_code == 200:
                     logger.success(f'{self.address} - успешно забриджено!...')
                     self.sleep_indicator(random.randint(self.delay[0], self.delay[1]))
