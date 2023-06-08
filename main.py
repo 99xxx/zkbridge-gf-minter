@@ -448,6 +448,8 @@ def main():
     for key in keys:
         if proxies:
             proxy = random.choice(proxies)
+        else:
+            proxy=None
         mint = ZkBridge(key,DELAY,chain,to,MODE,MORALIS_API_KEY,proxy)
         res = mint.claim_on_destinaton()
         wallets.append(res[0]), results.append(res[1])
