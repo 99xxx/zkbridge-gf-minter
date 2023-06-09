@@ -257,8 +257,14 @@ class ZkBridge(Help):
                         self.sleep_indicator(random.randint(1,10))
                         break
                 except Exception as e:
-                    logger.error(f'{self.address}:{self.chain} - {e}...')
-                    time.sleep(2)
+                    error = str(e)
+                    if 'INTERNAL_ERROR: insufficient funds' in error or 'insufficient funds for gas * price + value' in error:
+                        logger.error(
+                            f'{self.address}:{self.chain} - не хватает денег на газ, заканчиваю работу через 5 секунд...')
+                        time.sleep(5)
+                    else:
+                        logger.error(f'{self.address}:{self.chain} - {e}...')
+                        time.sleep(2)
 
         #bridge
 
@@ -465,7 +471,11 @@ class ZkBridge(Help):
                 error = str(e)
                 if 'INTERNAL_ERROR: insufficient funds' in error or 'insufficient funds for gas * price + value' in error:
                     logger.error(f'{self.address}:{self.chain} - не хватает денег на газ, заканчиваю работу через 5 секунд...')
+                    time.sleep(5)
                     return address, 'error'
+                elif 'Message already executed' in error:
+                    logger.success(f'{self.address}:{self.chain} - успешно заклеймил greenfield...')
+                    return address, 'success'
                 else:
                     logger.error(f'{address}:{self.to} - {e} ...')
                     return address, 'error'
