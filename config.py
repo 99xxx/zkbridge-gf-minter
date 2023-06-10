@@ -14,10 +14,11 @@ moralis api key - https://admin.moralis.io/login регаемся и получ�
 
 
 '''
-
+import random
 
 with open("keys.txt", "r") as f:
     keys = [row.strip() for row in f]
+    random.shuffle(keys)
 
 with open("proxyy.txt", "r") as f:
     proxies = [row.strip() for row in f]
