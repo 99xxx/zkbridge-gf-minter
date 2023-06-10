@@ -67,11 +67,11 @@ class ZkBridge(Help):
         headers = {
             'authority': 'api.zkbridge.com',
             'accept': 'application/json, text/plain, */*',
-            'accept-language': 'ru,en;q=0.9',
+            'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
             'content-type': 'application/json',
             'origin': 'https://zkbridge.com',
             'referer': 'https://zkbridge.com/',
-            'sec-ch-ua': '"Chromium";v="112", "YaBrowser";v="23", "Not:A-Brand";v="99"',
+            'sec-ch-ua': '"Not.A/Brand";v="8", "Chromium";v="114", "Google Chrome";v="114"',
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Windows"',
             'sec-fetch-dest': 'empty',
@@ -81,27 +81,38 @@ class ZkBridge(Help):
         }
 
         json_data = {
-            'publicKey': self.address,
+            'publicKey': self.address.lower(),
         }
 
+        print(json_data)
         while True:
             try:
                 if self.proxy:
                     proxies = {'http': self.proxy, 'https': self.proxy}
                     response = requests.post(
-                        'https://api.zkbridge.com/api/signin/validation_message', headers=headers,
-                        json=json_data,proxies=proxies
+                        'https://api.zkbridge.com/api/signin/validation_message',
+                        json=json_data, headers=headers, proxies=proxies
                     )
                 else:
                     response = requests.post(
-                        'https://api.zkbridge.com/api/signin/validation_message', headers=headers,
-                        json=json_data,
+                        'https://api.zkbridge.com/api/signin/validation_message',
+                        json=json_data, headers=headers,
+
                     )
 
                 if response.status_code == 200:
                     msg = json.loads(response.text)
-                    return msg['message'], headers
 
+                    msg = msg['message']
+                    msg = encode_defunct(text=msg)
+                    sign = self.w3.eth.account.sign_message(msg, private_key=self.privatekey)
+                    signature = self.w3.to_hex(sign.signature)
+                    json_data = {
+                        'publicKey': self.address,
+                        'signedMessage': signature,
+                    }
+                    print(signature)
+                    return signature, ua
             except Exception as e:
                 logger.error(f'{self.address}:{self.chain} - {e}')
                 time.sleep(5)
@@ -109,21 +120,39 @@ class ZkBridge(Help):
     def sign(self):
 
         # sign msg
-        msg, headers = self.auth()
-        msg = encode_defunct(text=msg)
-        sign = self.w3.eth.account.sign_message(msg, private_key=self.privatekey)
-        signature = self.w3.to_hex(sign.signature)
+        signature, ua = self.auth()
+        headers = {
+            'authority': 'api.zkbridge.com',
+            'accept': 'application/json, text/plain, */*',
+            'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+            'content-type': 'application/json',
+            'origin': 'https://zkbridge.com',
+            'referer': 'https://zkbridge.com/',
+            'sec-ch-ua': '"Not.A/Brand";v="8", "Chromium";v="114", "Google Chrome";v="114"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+            'user-agent': ua,
+        }
+
         json_data = {
-            'publicKey': self.address,
+            'publicKey': self.address.lower(),
             'signedMessage': signature,
         }
+        print(json_data)
         while True:
             try:
+
                 if self.proxy:
                     proxies = {'http': self.proxy, 'https': self.proxy}
-                    response = requests.post('https://api.zkbridge.com/api/signin', headers=headers, json=json_data, proxies=proxies)
+
+                    response = requests.post('https://api.zkbridge.com/api/signin', headers=headers, json=json_data,
+                                             proxies=proxies)
                 else:
-                    response = requests.post('https://api.zkbridge.com/api/signin',  headers=headers, json=json_data)
+                    response = requests.post('https://api.zkbridge.com/api/signin', headers=headers, json=json_data)
+                print(response.text)
                 if response.status_code == 200:
                     token = json.loads(response.text)['token']
                     headers['authorization'] = f'Bearer {token}'
